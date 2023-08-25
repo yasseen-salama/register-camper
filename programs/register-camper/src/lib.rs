@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("4K4jS5PjPP2EPRrFF4EwxzZLNK3t7JVjSXqTG2d6Nn12");
 
 #[program]
 pub mod register_camper {
@@ -8,11 +8,9 @@ pub mod register_camper {
     pub fn create_camper(ctx: Context<CreateCamper>, handle: String) -> Result<()> {
         let camper: &mut Account<Camper> = &mut ctx.accounts.camper; 
         let owner: &Signer = &ctx.accounts.owner;
-        let clock: Clock = Clock::get().unrawp(); 
+        let clock: Clock = Clock::get().unwrap(); 
 
-        if handle.chars().count() > 30 {
-            return Err(ErrorCode::HandleTooLong.into())
-        }
+        require!(handle.chars().count() < 30, CamperErrors::HandleTooLong);
 
         camper.owner = *owner.key; 
         camper.timestamp = clock.unix_timestamp; 
@@ -28,14 +26,15 @@ pub struct CreateCamper<'info> {
     pub camper: Account<'info, Camper>,
     #[account(mut)]
     pub owner: Signer<'info>,
-    pub system_program: Program<'info, System>,
+    #[account(address = system_program::ID)]
+    pub system_program: Program<'info, System>
 }
 
 #[account]
 pub struct Camper {
     pub owner: Pubkey,
     pub timestamp: i64,
-    pub handle: String,
+    pub handle: String
 }
 const DISCRIMINATOR_LENGTH: usize = 8;
 const PUBLIC_KEY_LENGTH: usize = 32;
@@ -51,7 +50,7 @@ impl Camper {
 }
 
 #[error_code]
-pub enum ErrorCode {
+pub enum CamperErrors   {
     #[msg("The handle should be 30 characters long maximum.")]
-    HandleTooLong,
+    HandleTooLong
 }
