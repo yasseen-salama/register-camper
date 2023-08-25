@@ -1,4 +1,6 @@
 use anchor_lang::prelude::*;
+use solana_program::system_program;
+
 
 declare_id!("4K4jS5PjPP2EPRrFF4EwxzZLNK3t7JVjSXqTG2d6Nn12");
 
@@ -18,6 +20,17 @@ pub mod register_camper {
         
         Ok(())
     }
+    pub fn edit_handle(ctx: Context<EditHandle>, new_handle: String) -> Result<()> {
+        let camper: &mut Account<Camper> = &mut ctx.accounts.camper;
+        let owner: &Signer = &ctx.accounts.owner;
+        
+        require!(camper.owner == *owner.key, CamperErrors::UnauthorizedSigner);
+        require!(new_handle.chars().count() < 30, CamperErrors::HandleTooLong);
+        
+        camper.handle = new_handle;
+        Ok(())
+
+    }
 }
 
 #[derive(Accounts)]
@@ -27,7 +40,14 @@ pub struct CreateCamper<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
     #[account(address = system_program::ID)]
-    pub system_program: Program<'info, System>
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct EditHandle<'info> {
+    #[account(mut, has_one = owner)]
+    pub camper: Account<'info, Camper>,
+    pub owner: Signer<'info>,
 }
 
 #[account]
@@ -52,5 +72,7 @@ impl Camper {
 #[error_code]
 pub enum CamperErrors   {
     #[msg("The handle should be 30 characters long maximum.")]
-    HandleTooLong
+    HandleTooLong,
+    #[msg("Unauthorized signer for account.")]
+    UnauthorizedSigner
 }
