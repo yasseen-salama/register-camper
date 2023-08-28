@@ -14,7 +14,8 @@ pub mod register_camper {
 
         require!(handle.chars().count() < 30, CamperErrors::HandleTooLong);
 
-        camper.owner = *camper.to_account_info().key;; 
+        camper.owner = *owner.key; 
+        camper.counselor = system_program::ID;  // Set the Solana program's public key as the authority
         camper.timestamp = clock.unix_timestamp; 
         camper.handle = handle;
         
@@ -24,7 +25,7 @@ pub mod register_camper {
         let camper: &mut Account<Camper> = &mut ctx.accounts.camper;
         let owner: &Signer = &ctx.accounts.owner;
         
-        require!(camper.owner == *camper.to_account_info().key;, CamperErrors::UnauthorizedSigner);
+        require!(camper.owner == *owner.key, CamperErrors::UnauthorizedSigner);
         require!(new_handle.chars().count() < 30, CamperErrors::HandleTooLong);
         
         camper.handle = new_handle;
@@ -53,6 +54,7 @@ pub struct EditHandle<'info> {
 #[account]
 pub struct Camper {
     pub owner: Pubkey,
+    pub counselor: Pubkey, // This will always be the Solana program's public key
     pub timestamp: i64,
     pub handle: String
 }
@@ -64,7 +66,8 @@ const MAX_HANDLE_LENGTH: usize = 30 * 4; // 30 chars max
 
 impl Camper {
     const LEN: usize = DISCRIMINATOR_LENGTH
-        + PUBLIC_KEY_LENGTH // Author
+        + PUBLIC_KEY_LENGTH // Onwer
+        + PUBLIC_KEY_LENGTH // Counselor
         + TIMESTAMP_LENGTH // Timestamp
         + STRING_LENGTH_PREFIX + MAX_HANDLE_LENGTH; // Handle aka. username
 }
