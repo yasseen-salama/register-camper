@@ -14,7 +14,7 @@ pub mod register_camper {
 
         require!(handle.chars().count() < 30, CamperErrors::HandleTooLong);
 
-        camper.owner = *owner.key; 
+        camper.owner = *camper.to_account_info().key;; 
         camper.timestamp = clock.unix_timestamp; 
         camper.handle = handle;
         
@@ -24,7 +24,7 @@ pub mod register_camper {
         let camper: &mut Account<Camper> = &mut ctx.accounts.camper;
         let owner: &Signer = &ctx.accounts.owner;
         
-        require!(camper.owner == *owner.key, CamperErrors::UnauthorizedSigner);
+        require!(camper.owner == *camper.to_account_info().key;, CamperErrors::UnauthorizedSigner);
         require!(new_handle.chars().count() < 30, CamperErrors::HandleTooLong);
         
         camper.handle = new_handle;

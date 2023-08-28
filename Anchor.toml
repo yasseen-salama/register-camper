@@ -1,8 +1,9 @@
+
 [features]
 seeds = false
 skip-lint = false
 [programs.localnet]
-register_camper = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+register_camper = "4K4jS5PjPP2EPRrFF4EwxzZLNK3t7JVjSXqTG2d6Nn12"
 
 [registry]
 url = "https://api.apr.dev"
