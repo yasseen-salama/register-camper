@@ -46,15 +46,16 @@ pub struct CreateCamper<'info> {
 
 #[derive(Accounts)]
 pub struct EditHandle<'info> {
-    #[account(mut, has_one = owner)]
+    #[account(mut)]
     pub camper: Account<'info, Camper>,
+    #[account(mut)]
     pub owner: Signer<'info>,
 }
 
 #[account]
 pub struct Camper {
     pub owner: Pubkey,
-    pub counselor: Pubkey, // This will always be the Solana program's public key
+    pub counselor: Pubkey, 
     pub timestamp: i64,
     pub handle: String
 }
